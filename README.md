@@ -9,8 +9,8 @@ At this point, in contains: <br>
 The tutorials are written with Google Colab in .ipynb format.
 This means, that there are two ways to run them.
 
-1. the default one: copy the notebook to the Google Drive account and open with Google Colab
-2. if already familiar with Jupyter Notebooks, run from them. <br>
+1. the default one: copy the contents of this repository as a separate folder to your Google Drive account and open notebooks with Google Colab (right click -> "Open with" -> "Google Colaboratory")
+2. if already familiar with Jupyter Notebooks, use them to run from computer. <br>
 In this case, skip the steps with mounting Google Drive and install all the required libraries from the command line. <br>
   * Examples of parts to remove:
 ```python
