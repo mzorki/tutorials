@@ -34,6 +34,9 @@ import sys
 sys.path.insert(0,'./modules')
 import dict_tokenizer as dt
 ```
+## Issues and errors
+
+If something does not work in the code, there is a way to notify me about this by creating an issue. [Click here](https://docs.github.com/en/github/managing-your-work-on-github/creating-an-issue) to read a guide on how to do this.
 
 ## Academic usage
 
