@@ -9,7 +9,7 @@ This means, that there are two ways to run them.
 
 1. the default one: copy the notebook to the Google Drive account and open with Google Colab
 2. if already familiar with Jupyter Notebooks, run from them. <br>
-In this case, skip the steps with mounting Google Drive and install all the required libraries from the command line. 
+In this case, skip the steps with mounting Google Drive and install all the required libraries from the command line. <br>
 ** Parts to remove:
 ```python
 from google.colab import drive
