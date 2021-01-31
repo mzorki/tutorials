@@ -17,7 +17,7 @@ In this case, skip the steps with mounting Google Drive and install all the requ
 from google.colab import drive
 drive.mount('/gdrive', force_remount=True)
 
-project_dir = "/gdrive/My Drive/Digital Orientalist/" 
+project_dir = "/gdrive/My Drive/My_folder/" 
 #move to the working directory 
 %cd {project_dir} 
 
