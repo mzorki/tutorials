@@ -2,11 +2,11 @@
 
 **tutorials** is a collection of tutorials and code examples for working with Chinese language. <br>
 At this point, in contains: <br>
-* Tokenization: a file on tokenizing Chinese language (including Old and Medieval Chinese) with different means
+* Tokenization: a file on tokenizing Chinese language (including Old and Medieval Chinese) with different tools
 
 ## Installation & running
 
-The tutorials are written via Google Colab in .ipynb format.
+The tutorials are written with Google Colab in .ipynb format.
 This means, that there are two ways to run them.
 
 1. the default one: copy the notebook to the Google Drive account and open with Google Colab
@@ -24,7 +24,9 @@ project_dir = "/gdrive/My Drive/Digital Orientalist/"
 !pip install pyhanlp
 !pip install udkanbun
 ```
-  * If the file imports a local package, change the code according to this template:
+  * If the file imports a local package, change the code according to this template: <br>
+  Find this code...
+  
 ```python
 import dict_tokenizer as dt
 ```
