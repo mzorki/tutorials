@@ -24,16 +24,16 @@ project_dir = "/gdrive/My Drive/My_folder/"
 !pip install pyhanlp
 !pip install udkanbun
 ```
-  * If the file imports a local package, change the code according to this template: <br>
+  * If the file imports a local module that is **not** inside the same folder, it might be necessary to change the code according to this template: <br>
   Find this code...
   
 ```python
-import dict_tokenizer as dt
+from helper import dict_tokenizer as dt
 ```
-  ...and replace it with this:
+  ...and replace it with this (where './helper' is the relative path to the folder with helper code):
 ```python
 import sys
-sys.path.insert(0,'./modules')
+sys.path.insert(0,'./helper')
 import dict_tokenizer as dt
 ```
 ## Errors and bugs
