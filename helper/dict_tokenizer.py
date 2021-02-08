@@ -1,201 +1,102 @@
 """
-Written by Mariana Zorkina 202011
+Written by Mariana Zorkina 202102
 """
-import re
+
 import os.path
 
-def open_vocab(vocabulary_file='default', longest_word=3):
+def open_vocab(dictionary='default'):
     """
-    Opens the vocabulary file and turns it into a list. Truncates the words longer than given value.
+    Opens the dictionary file and turns it into a tree data structure for fast retrieval.
+    Truncates the words longer than given value.
+    Solution taken from here:
+    https://stackoverflow.com/questions/16547643/convert-a-list-of-delimited-strings-to-a-tree-nested-dict-using-python
     
     Args:
-        vocabulary_file: file with the vocabulary. Requires a .txt file with one word per line.
-                            By default uses CDICT vocabulary. Else: give path to the file.
-        longest_word: max length of a word to be saved. By default takes words of max length 3.
-        
+        dictionary: a path to a .txt file with one word per line. 
+                    By default set to CDICT (http://download.huzheng.org/zh_TW/)   
     Returns:
-        vocab: words of the vocabulary in list format.
+        tree: a list of words as a dict structure
     """
     
-    if vocabulary_file == 'default':
-        vocabulary_file = os.path.join(os.path.dirname(__file__), '../CDICT(Stardict)_wordlist.txt')
-        #vocabulary_file = 'CDICT(Stardict)_wordlist.txt'
+    #Load the dictionary
+    if dictionary == 'default':
+        dictionary = os.path.join(os.path.dirname(__file__), 'CDICT(Stardict)_wordlist.txt')
     
-    with open(vocabulary_file, 'r', encoding='utf8') as rf:
-        vocab = list(set(rf.read().split("\n")))
-        vocab = [v for v in vocab if len(v)<=longest_word and v != ""]
+    with open(dictionary, 'r', encoding='utf8') as rf:
+        vocabulary = [word for word in list(set(rf.read().split("\n")))]
+
+    #Turn the list into a tree structure
+    vocabulary_tree = {}
+
+    for item in vocabulary:
+        t = vocabulary_tree
+        for part in list(item):
+            t = t.setdefault(part, {})
     
-    return vocab
+    return vocabulary_tree
 
-
-
-
-def tokenize(sentence, vocab, longest_word=3, verbose=False):
+    
+def remove_prefix(text, prefix):
     """
-    Takes a sentence and tokenizes it according to the given vocabulary file.
-    Follows a simple window slide algorithm by trying to match the whole line 
-    and reducing length until successful.
-    If using this function, save vocabulary into memory with dict_tokenizer.open_vocab() first.
-    
+    A short algorithm to remove the defined word from the text 
+    and move forward with tokenization.
     Args:
-        sentence: sentence to tokenize. Expects clean and split phrases (chunks of text between punctuation).
-                    Will work if the text is dirty and contains punctuation, 
-                    but will take very long with a long text.
-        precise: match precision. 
-                    False: Default. Will stop at the longest match. 
-                    True: will try to split 3+ character words into smaller ones.
-        vocab: list with words to use as a vocabulary for tokenizing
-        longest_word: max length of a word to be saved. By default takes words of max length 3.
-        verbose: set to True if want to get commentaries on 
-    
+        text: text that to tokenize
+        prefix: a part of the text (= the word found in dictionary to remove)
     Returns:
-        parsed: list of parsed words
-                    
+        truncated text that doesn't contain the tokenized word in the beginning
     """
-    
-    parsed = []
-    beg = 0
-    len_max = len(sentence)
-    left = len_max
-    shorten = 0
+    return text[text.startswith(prefix) and len(prefix):]
 
 
-    while left>0:
-        
-        
-        #Reduce the forward lookup to the longest word allowed to minimize search operations
-        
-        if verbose: print("Beginning of cycle, left: ", left)
-            
-        if left-shorten > longest_word:
-            shorten = left - longest_word
-            if verbose: print(f"New shorten: {shorten} = {left} - {longest_word}")
-
-        #If the text chunk of the current length in vocabulary, remember it and move to new search position.     
-        if sentence[beg:len_max-shorten] in vocab:
-            
-            parsed.append(sentence[beg:len_max-shorten])
-            left -= len(sentence[beg:len_max-shorten])
-            
-            if verbose:
-                print(f'Found: {sentence[beg:len_max-shorten]}\nLeft characters: {left}\n======================\n')
-            
-            beg +=len(sentence[beg:len_max-shorten])
-            shorten = 0
-            
-        
-        #If search is reduced to one character and it is still not found, add the current char and go on
-        elif len(sentence[beg:len_max-shorten]) == 1 and sentence[beg:len_max-shorten] not in vocab:
-            parsed.append(sentence[beg:len_max-shorten])
-            
-            if verbose: print(f'Not found and added: {sentence[beg:len_max-shorten]}')
-            
-            left -= 1
-            beg +=len(sentence[beg:len_max-shorten])
-            shorten = 0
-            
-            
-            
-        #If nothing is found in the vocabulary, reduce the length of the search term
-        else:
-            if verbose: print(f'Not found: {sentence[beg:len_max-shorten]}')
-                
-            shorten+=1
-            
-
-    parsed = [i for i in parsed if i != ' ']
-
-    return parsed
-
-
-
-
-# def tokenize_text(text, vocab, keep_punctuation=False, longest_word=2):
-#     """
-#     Takes a large multi-sentence text as a string, splits it into phrases by punctuation and tokenizes
-#     it according to the given vocabulary file. Follows a simple window slide algorithm by trying to match 
-#     the whole line and reducing length until successful. 
-#     Will treat newlines as punctuation.
-    
-#     Args:
-#         text: text to tokenize. Requires a re
-#         vocab: list with words to use as a vocabulary for tokenizing
-#         longest_word: max length of a word to be saved. By default takes words of max length 3. 
-#                         In principle, for finer tokenization choose len=2; 
-#                         otherwise many words with len=3 appear that can be interpreted as compounds.
-#         keep_punctuation: 
-#                             True: keep the punctuation, 
-#                             False: delete all punctuation
-    
-#     Returns:
-#         parsed: list with each sentence as a parsed list.
-                    
-#     """
-    
-    
-    
-#     #Parse the text into phrases/sentences
-#     if keep_punctuation == True:
-#         punctuation = re.compile("([。？！；：；、，「」『』《》 *  ()○\n\t])")#inspired by Paul Vierthaler's RegEx
-#         sentences = [i for i in re.split(punctuation, text) if i != '' and i != " "] 
-        
-#     if keep_punctuation == False:
-#         punctuation = re.compile("[。？！；：；、，「」『』《》 *  ()○\n\t]")
-#         sentences = [i for i in re.split(punctuation, text) if i != '' and i != " "] 
-
-    
-#     #Tokenize each phrase
-#     parsed = []
- 
-#     for sentence in sentences:
-#         if re.match(punctuation, sentence):
-#             parsed[-1].append(sentence)      
-#         else:
-#             parsed.append(tokenize(sentence, vocab=vocab, longest_word=longest_word))
-    
-#     return parsed
-
-def tokenize_text(text, vocab, keep_punctuation=False, longest_word=2):
+def pop_token_tree(text, tree, longest_word):
     """
-    Takes a large multi-sentence text as a string, splits it into phrases by punctuation and tokenizes
-    it according to the given vocabulary file. Follows a simple window slide algorithm by trying to match 
-    the whole line and reducing length until successful. 
-    Will treat newlines as punctuation.
-    
+    Checks the vocabulary tree for the longest allowed match.
+    When found, returns the match and removes it from the text.
     Args:
-        text: text to tokenize. Requires a re
-        vocab: list with words to use as a vocabulary for tokenizing
-        longest_word: max length of a word to be saved. By default takes words of max length 3. 
-                        In principle, for finer tokenization choose len=2; 
-                        otherwise many words with len=3 appear that can be interpreted as compounds.
-        keep_punctuation: 
-                            True: keep the punctuation, 
-                            False: delete all punctuation
-    
+        text: text to tokenize
+        tree: a list of words as a dict structure prepared by open_vocab() function
+        longest_word: max number of characters allowed per word. Recommended 2 or 3. 
     Returns:
-        parsed: list with each sentence as a parsed list.
-                    
+        frag: the longest of allowed matches that was found in the dictionary
+        text: the tokenized text with the previous match removed
     """
-    
-    vocabulary = open_vocab(vocab)
-    
-    #Parse the text into phrases/sentences
-    if keep_punctuation == True:
-        punctuation = re.compile("([。？！；：；、，「」『』《》 *  ()○\n\t])")#inspired by Paul Vierthaler's RegEx
-        sentences = [i for i in re.split(punctuation, text) if i != '' and i != " "] 
-        
-    if keep_punctuation == False:
-        punctuation = re.compile("[。？！；：；、，「」『』《》 *  ()○\n\t]")
-        sentences = [i for i in re.split(punctuation, text) if i != '' and i != " "] 
 
+    frag = text[:longest_word]
+    count = 0
     
-    #Tokenize each phrase
-    parsed = []
- 
-    for sentence in sentences:
-        if re.match(punctuation, sentence):
-            parsed[-1].append(sentence)      
-        else:
-            parsed.append(tokenize(sentence, vocab=vocabulary, longest_word=longest_word))
+    while count<longest_word:
+
+        try:
+            tree = tree[frag[count]]
+            
+        except:
+            if count == 0:
+                return frag[0], text[1:]
+            else:
+                return frag[:count], text[count:]
+        
+        count +=1
+        
     
-    return parsed
+    return frag, text[longest_word:]
+
+
+def tokenize(text, tree, longest_word=2):
+    """
+    Takes a sentence or text and crawls through it trying to find matches in a dictionary.
+    Only two functions in this module need to be run: 
+    First, the open_vocab(), then this one.
+    Args:
+        text: text to tokenize
+        tree: a dictionary created by open_vocab()
+    Returns:
+        tokens: a tokenized sentence in a list format.
+    
+    """
+    tokens = []
+    while len(text)>0:
+        t, text = pop_token_tree(text, tree, longest_word)
+        tokens.append(t)
+    
+    return tokens
